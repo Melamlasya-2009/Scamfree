@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScamFree — Check sellers, UPI IDs, websites and payment identities before you pay</title>
+<meta name="description" content="ScamFree is a safety layer for online payments. Check any seller, UPI ID, QR code, Instagram profile or website for risk signals before your money leaves your account.">
+<meta property="og:title" content="ScamFree — Check before you pay">
+<meta property="og:description" content="A safety layer for online payments. Run a trust check before you pay an unknown seller, website or payment ID.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%230B1220' d='M50 4 90 18v28c0 30-17 48-40 54C27 96 10 78 10 46V18Z'/%3E%3Cpath fill='%2312B76A' d='M32 50l12 12 24-26' stroke='%23F7F5F0' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B1220;
+  --ink-soft:#39435A;
+  --paper:#F7F5F0;
+  --paper-dim:#EEEBE2;
+  --line:#DEDACC;
+  --green:#0E8F52;
+  --green-soft:#E4F5EB;
+  --amber:#B4690E;
+  --amber-soft:#FBF0DF;
+  --red:#B23A2E;
+  --red-soft:#FBE9E6;
+  --white:#FFFFFF;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+  --radius-s:8px;
+  --radius-m:14px;
+  --radius-l:22px;
+  --maxw:1240px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}
+body{
+  font-family:var(--font-body);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;background:none;border:none;color:inherit}
+input,select,textarea{font:inherit}
+ul{list-style:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+@media(max-width:640px){.wrap{padding:0 20px}}
+.eyebrow{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.02em;color:var(--ink-soft)}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;letter-spacing:-0.01em;color:var(--ink)}
+:focus-visible{outline:2.5px solid var(--green);outline-offset:3px;border-radius:4px}
+
+/* ---------- NAVBAR ---------- */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(247,245,240,.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s ease, padding .3s ease;
+}
+.nav.scrolled{border-bottom-color:var(--line);box-shadow:0 1px 0 rgba(11,18,32,.02)}
+.nav-inner{max-width:var(--maxw);margin:0 auto;padding:22px 32px;display:flex;align-items:center;justify-content:space-between;transition:padding .3s ease}
+.nav.scrolled .nav-inner{padding:14px 32px}
+@media(max-width:640px){.nav-inner{padding:18px 20px}.nav.scrolled .nav-inner{padding:12px 20px}}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:20px}
+.brand .mark{width:30px;height:30px}
+.brand b{color:var(--green)}
+.nav-links{display:flex;gap:30px;align-items:center}
+.nav-links a{font-size:14.5px;font-weight:500;color:var(--ink-soft);transition:color .15s}
+.nav-links a:hover{color:var(--ink)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 20px;border-radius:100px;font-weight:600;font-size:14.5px;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  white-space:nowrap;
+}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(11,18,32,.22)}
+.btn-ghost{color:var(--ink);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-green{background:var(--green);color:var(--white)}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(14,143,82,.28)}
+.btn-sm{padding:8px 14px;font-size:13.5px}
+.btn-block{width:100%}
+.nav-toggle{display:none}
+@media(max-width:900px){
+  .nav-links{display:none}
+  .nav-right .btn-ghost{display:none}
+  .nav-toggle{display:flex;width:38px;height:38px;align-items:center;justify-content:center}
+}
+.mnav{position:fixed;inset:0;z-index:200;background:var(--paper);display:none;flex-direction:column;padding:22px 20px}
+.mnav.open{display:flex}
+.mnav-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:36px}
+.mnav a{display:block;padding:16px 4px;font-family:var(--font-display);font-size:22px;border-bottom:1px solid var(--line)}
+.mnav .btn{margin-top:24px}
+
+/* ---------- HERO ---------- */
+.hero{padding:56px 0 90px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
+@media(max-width:980px){.hero-grid{grid-template-columns:1fr;gap:44px}}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:12.5px;
+  padding:7px 12px;border:1px solid var(--line);border-radius:100px;color:var(--ink-soft);margin-bottom:26px;
+}
+.hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero h1{font-size:clamp(38px,5.4vw,64px);line-height:1.04;letter-spacing:-0.02em}
+.hero h1 span{color:var(--green)}
+.hero p.lead{font-size:18px;color:var(--ink-soft);max-width:480px;margin-top:22px;line-height:1.6}
+.hero-ctas{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
+.hero-proof{display:flex;gap:28px;margin-top:46px;flex-wrap:wrap}
+.hero-proof div{border-left:2px solid var(--line);padding-left:14px}
+.hero-proof strong{display:block;font-family:var(--font-display);font-size:22px}
+.hero-proof span{font-size:12.5px;color:var(--ink-soft)}
+
+/* Trust Check Panel */
+.panel{
+  background:var(--white);border:1px solid var(--line);border-radius:var(--radius-l);
+  padding:26px;box-shadow:0 20px 50px -22px rgba(11,18,32,.28);position:relative;
+}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.panel-head .label{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:7px}
+.panel-head .rec{width:7px;height:7px;border-radius:50%;background:var(--red)}
+.check-input-row{display:flex;gap:10px;margin-bottom:12px}
+@media(max-width:520px){.check-input-row{flex-direction:column}}
+.check-input{
+  flex:1;border:1.5px solid var(--line);border-radius:var(--radius-m);padding:15px 16px;
+  font-size:15px;background:var(--paper-dim);transition:border-color .15s, background .15s;
+}
+.check-input:focus{outline:none;border-color:var(--ink);background:var(--white)}
+.check-input.error{border-color:var(--red)}
+.panel-actions{display:flex;gap:10px;flex-wrap:wrap}
+.err-msg{color:var(--red);font-size:13px;margin-top:8px;font-family:var(--font-mono);display:none}
+.err-msg.show{display:block}
+
+.scan-box{margin-top:20px;border-top:1px dashed var(--line);padding-top:20px;display:none}
+.scan-box.show{display:block}
+.scan-step{display:flex;align-items:center;gap:12px;padding:9px 0;font-size:14px;color:var(--ink-soft);opacity:.35;transition:opacity .3s}
+.scan-step.active{opacity:1;color:var(--ink)}
+.scan-step .sdot{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);flex:none;position:relative}
+.scan-step.active .sdot{border-color:var(--green)}
+.scan-step.done .sdot{background:var(--green);border-color:var(--green)}
+.scan-step.done .sdot::after{content:'';position:absolute;inset:0;background:var(--green);border-radius:50%}
+.scan-step .sdot.spin::before{content:'';position:absolute;inset:-2px;border:2px solid transparent;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.result-box{display:none;margin-top:20px;border-top:1px solid var(--line);padding-top:20px}
+.result-box.show{display:block;animation:reveal .45s ease both}
+@keyframes reveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.result-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.result-badge{display:inline-flex;align-items:center;gap:9px;padding:8px 14px;border-radius:100px;font-weight:700;font-size:14px}
+.result-badge.low{background:var(--green-soft);color:var(--green)}
+.result-badge.caution{background:var(--amber-soft);color:var(--amber)}
+.result-badge.high{background:var(--red-soft);color:var(--red)}
+.result-score{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft)}
+.result-score b{color:var(--ink);font-size:15px}
+.result-note{font-size:14.5px;color:var(--ink-soft);margin-top:10px}
+.signal-list{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin-top:16px}
+@media(max-width:480px){.signal-list{grid-template-columns:1fr}}
+.signal-list li{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink-soft)}
+.signal-list li b{color:var(--ink);font-weight:500}
+.signal-list.high li b{color:var(--red)}
+.result-disclaimer{margin-top:14px;font-size:12px;color:var(--ink-soft);font-family:var(--font-mono);border-top:1px dashed var(--line);padding-top:12px}
+
+/* ---------- SECTION SHARED ---------- */
+section{padding:100px 0}
+@media(max-width:768px){section{padding:66px 0}}
+.section-head{max-width:640px;margin-bottom:56px}
+.section-head h2{font-size:clamp(28px,3.8vw,42px);line-height:1.12}
+.section-head p{color:var(--ink-soft);font-size:16.5px;margin-top:14px;line-height:1.6}
+.section-alt{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.section-ink{background:var(--ink);color:var(--paper)}
+.section-ink .section-head h2{color:var(--paper)}
+.section-ink .eyebrow{color:#8E9AB8}
+
+.reveal-up{opacity:0;transform:translateY(22px);transition:opacity .6s ease, transform .6s ease}
+.reveal-up.in{opacity:1;transform:translateY(0)}
+
+/* ---------- PROBLEM SECTION ---------- */
+.scenario-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:980px){.scenario-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.scenario-grid{grid-template-columns:1fr}}
+.scenario{
+  border:1px solid var(--line);border-radius:var(--radius-m);padding:20px;background:var(--white);
+  position:relative;overflow:hidden;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;
+}
+.scenario .src{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.scenario .msg{font-size:15px;margin-top:10px;font-weight:500}
+.scenario .flag{
+  margin-top:14px;font-family:var(--font-mono);font-size:12px;color:var(--red);opacity:0;
+  transform:translateY(6px);transition:opacity .4s ease,transform .4s ease;display:flex;align-items:center;gap:6px;
+}
+.scenario.flagged .flag{opacity:1;transform:translateY(0)}
+.problem-question{text-align:center;margin-top:52px}
+.problem-question p{font-family:var(--font-display);font-size:clamp(22px,3vw,32px);color:var(--ink)}
+
+/* ---------- TABS / CHECKER SECTION ---------- */
+.tabbar{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:30px;overflow-x:auto}
+.tabbar button{
+  padding:12px 18px;font-size:14px;font-weight:600;color:var(--ink-soft);white-space:nowrap;
+  border-bottom:2px solid transparent;transition:color .15s,border-color .15s;
+}
+.tabbar button.active{color:var(--ink);border-color:var(--green)}
+.checker-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+@media(max-width:900px){.checker-grid{grid-template-columns:1fr}}
+.checker-hint{font-size:13px;color:var(--ink-soft);margin-top:10px;font-family:var(--font-mono)}
+.demo-note{
+  display:flex;gap:10px;align-items:flex-start;background:var(--amber-soft);border:1px solid #EBD6AE;
+  border-radius:var(--radius-s);padding:14px 16px;font-size:13.5px;color:#7A4C0C;margin-top:18px;
+}
+
+/* radial score ring */
+.score-card{border:1px solid var(--line);border-radius:var(--radius-l);background:var(--white);padding:30px;text-align:center}
+.ring-wrap{position:relative;width:190px;height:190px;margin:0 auto}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-num strong{font-family:var(--font-display);font-size:44px;line-height:1}
+.ring-num span{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);letter-spacing:.05em;margin-top:2px}
+.bars{margin-top:26px;display:flex;flex-direction:column;gap:14px;text-align:left}
+.bar-row{display:flex;flex-direction:column;gap:6px}
+.bar-row .bl{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft)}
+.bar-track{height:6px;border-radius:4px;background:var(--paper-dim);overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;width:0%;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+
+/* ---------- SIGNAL CARDS ---------- */
+.signal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:980px){.signal-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.signal-grid{grid-template-columns:1fr}}
+.signal-card{
+  border:1px solid var(--line);border-radius:var(--radius-m);padding:20px;background:var(--paper);
+  cursor:pointer;transition:border-color .2s,background .2s;
+}
+.signal-card:hover,.signal-card.open{border-color:var(--ink);background:var(--white)}
+.signal-card h4{font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.signal-card h4 .plus{font-family:var(--font-mono);color:var(--ink-soft);transition:transform .2s}
+.signal-card.open h4 .plus{transform:rotate(45deg)}
+.signal-card p{font-size:13.5px;color:var(--ink-soft);margin-top:0;max-height:0;overflow:hidden;transition:max-height .3s ease,margin-top .3s ease}
+.signal-card.open p{max-height:120px;margin-top:10px}
+
+/* ---------- SAFETY NETWORK ---------- */
+.network-wrap{border:1px solid var(--line);border-radius:var(--radius-l);background:var(--white);padding:20px;overflow:hidden}
+.network-wrap svg{width:100%;height:auto;display:block}
+.net-node{transition:r .2s}
+.net-legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;font-size:13px;color:var(--ink-soft)}
+.net-legend span{display:inline-flex;align-items:center;gap:7px}
+.net-legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+/* ---------- REPORTING ---------- */
+.report-cta{
+  display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;
+  border:1px solid var(--line);border-radius:var(--radius-l);padding:38px;background:var(--white);
+}
+.report-cta h3{font-size:26px;max-width:420px;line-height:1.2}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(11,18,32,.55);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--radius-l);max-width:460px;width:100%;padding:28px;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.modal-head h3{font-size:20px}
+.modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex:none}
+.report-cats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
+@media(max-width:420px){.report-cats{grid-template-columns:1fr}}
+.report-cats label{
+  border:1px solid var(--line);border-radius:var(--radius-s);padding:10px 12px;font-size:13.5px;
+  display:flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .15s,background .15s;
+}
+.report-cats input{accent-color:var(--green)}
+.report-cats label:has(input:checked){border-color:var(--green);background:var(--green-soft)}
+.field{margin-bottom:14px}
+.field label.flabel{font-size:12.5px;font-family:var(--font-mono);color:var(--ink-soft);display:block;margin-bottom:6px}
+.field textarea,.field input[type=text]{
+  width:100%;border:1.5px solid var(--line);border-radius:var(--radius-s);padding:12px 13px;font-size:14px;background:var(--paper-dim);
+}
+.field textarea:focus,.field input:focus{outline:none;border-color:var(--ink);background:var(--white)}
+.report-success{display:none;text-align:center;padding:20px 0}
+.report-success.show{display:block}
+.report-success .check-ico{width:52px;height:52px;border-radius:50%;background:var(--green-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+
+/* ---------- SELLER PROFILES ---------- */
+.profiles-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:860px){.profiles-grid{grid-template-columns:1fr}}
+.profile-card{border-radius:var(--radius-l);padding:26px;border:1px solid var(--line);background:var(--white)}
+.profile-card.risky{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.profile-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.profile-id{display:flex;gap:12px;align-items:center}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--paper-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;flex:none}
+.profile-card.risky .avatar{background:#1A2438;color:var(--paper)}
+.profile-id strong{display:block;font-family:var(--font-display);font-size:17px}
+.profile-id span{font-size:13px;color:var(--ink-soft)}
+.profile-card.risky .profile-id span{color:#9AA6C2}
+.profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin:24px 0}
+.pstat span{display:block;font-size:12px;color:var(--ink-soft);font-family:var(--font-mono)}
+.profile-card.risky .pstat span{color:#9AA6C2}
+.pstat strong{font-family:var(--font-display);font-size:19px}
+.profile-signals{display:flex;flex-direction:column;gap:8px;margin:18px 0 22px;font-size:13.5px}
+.profile-signals li{display:flex;gap:8px;align-items:center}
+.risk-warn{background:var(--red-soft);color:var(--red);border-radius:var(--radius-s);padding:12px 14px;font-size:13.5px;font-weight:600;margin-bottom:18px}
+
+/* ---------- HOW IT WORKS ---------- */
+.steps-list{display:flex;flex-direction:column}
+.step-row{display:grid;grid-template-columns:70px 1fr;gap:22px;padding:26px 0;border-top:1px solid var(--line)}
+.step-row:last-child{border-bottom:1px solid var(--line)}
+.step-num{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);padding-top:4px}
+.step-row h4{font-size:19px;margin-bottom:6px}
+.step-row p{color:var(--ink-soft);font-size:14.5px;max-width:520px}
+
+/* ---------- BUSINESS ---------- */
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center}
+@media(max-width:900px){.biz-grid{grid-template-columns:1fr}}
+.biz-list{display:flex;flex-direction:column;gap:16px;margin-top:26px}
+.biz-list li{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.biz-badge{border:1px solid var(--line);border-radius:var(--radius-l);padding:26px;background:var(--paper)}
+.biz-badge-top{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px dashed var(--line);margin-bottom:16px}
+
+/* ---------- MODEL ---------- */
+.model-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:980px){.model-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.model-grid{grid-template-columns:1fr}}
+.model-card{border:1px solid var(--line);border-radius:var(--radius-m);padding:20px;background:var(--white)}
+.model-card .tag{font-family:var(--font-mono);font-size:11px;color:var(--green);letter-spacing:.03em}
+.model-card h4{font-size:16px;margin-top:8px}
+.model-card p{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+
+/* ---------- IMPACT ---------- */
+.impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:860px){.impact-grid{grid-template-columns:1fr 1fr}}
+.impact-num{font-family:var(--font-display);font-size:clamp(30px,4.4vw,46px);color:var(--green)}
+.impact-label{color:#B7C0D8;font-size:13.5px;margin-top:4px}
+.impact-disclaimer{margin-top:40px;font-family:var(--font-mono);font-size:12px;color:#8E9AB8}
+
+/* ---------- FINAL CTA ---------- */
+.final-cta{text-align:center;padding:90px 0}
+.final-cta h2{font-size:clamp(30px,5vw,50px);line-height:1.1;max-width:760px;margin:0 auto}
+.final-cta .ctas{display:flex;gap:14px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+
+/* ---------- FOOTER ---------- */
+footer{background:var(--ink);color:var(--paper);padding:70px 0 30px}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:30px}
+@media(max-width:860px){.foot-grid{grid-template-columns:1fr 1fr;row-gap:36px}}
+.foot-brand .brand{color:var(--paper)}
+.foot-brand p{color:#9AA6C2;font-size:14px;margin-top:12px;max-width:240px}
+footer h5{font-family:var(--font-mono);font-size:12px;color:#8E9AB8;letter-spacing:.04em;margin-bottom:14px}
+footer ul li{margin-bottom:10px}
+footer ul a{color:#C7CEE0;font-size:14px;transition:color .15s}
+footer ul a:hover{color:var(--paper)}
+.foot-bottom{margin-top:60px;padding-top:26px;border-top:1px solid #1E2A45;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.foot-disclaimer{font-size:12.5px;color:#8896B5;max-width:760px;line-height:1.6}
+.foot-copy{font-size:12.5px;color:#7482A3}
+
+/* ---------- TOAST ---------- */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:var(--paper);padding:14px 22px;border-radius:100px;font-size:14px;
+  display:flex;align-items:center;gap:10px;z-index:400;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <svg class="mark" viewBox="0 0 100 100"><path fill="#0B1220" d="M50 4 90 18v28c0 30-17 48-40 54C27 96 10 78 10 46V18Z"/><path d="M32 50l12 12 24-26" stroke="#F7F5F0" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Scam<b>Free</b>
+    </a>
+    <div class="nav-links">
+      <a href="#how">How It Works</a>
+      <a href="#checker">Check a Seller</a>
+      <a href="#network">Safety Network</a>
+      <a href="#business">For Businesses</a>
+      <a href="#resources">Resources</a>
+    </div>
+    <div class="nav-right">
+      <a href="#" class="btn btn-ghost btn-sm" id="signInBtn">Sign In</a>
+      <a href="#checker" class="btn btn-primary btn-sm">Check Now</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 22 22"><path d="M2 5h18M2 11h18M2 17h18" stroke="#0B1220" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="mnav" id="mnav">
+  <div class="mnav-top">
+    <a href="#top" class="brand">Scam<b>Free</b></a>
+    <button class="modal-close" id="mnavClose" aria-label="Close menu">
+      <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2l12 12M14 2L2 14" stroke="#0B1220" stroke-width="1.6"/></svg>
+    </button>
+  </div>
+  <a href="#how" class="mnav-link">How It Works</a>
+  <a href="#checker" class="mnav-link">Check a Seller</a>
+  <a href="#network" class="mnav-link">Safety Network</a>
+  <a href="#business" class="mnav-link">For Businesses</a>
+  <a href="#resources" class="mnav-link">Resources</a>
+  <a href="#checker" class="btn btn-green btn-block">Check Now</a>
+</div>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-tag"><span class="dot"></span> Now checking sellers across UPI, Instagram &amp; the web</div>
+      <h1>Before you pay, <br>know who you're <span>paying</span>.</h1>
+      <p class="lead">ScamFree checks sellers, payment IDs, QR codes, websites and social profiles for risk signals — before your money leaves your account.</p>
+      <div class="hero-ctas">
+        <a href="#checker" class="btn btn-green">Check Someone Now</a>
+        <a href="#how" class="btn btn-ghost">See How It Works</a>
+      </div>
+      <div class="hero-proof">
+        <div><strong>10M+</strong><span>People protected*</span></div>
+        <div><strong>250K+</strong><span>Sellers checked*</span></div>
+        <div><strong>&lt;3s</strong><span>Average check time*</span></div>
+      </div>
+    </div>
+
+    <div class="panel" id="heroPanel">
+      <div class="panel-head">
+        <span class="label"><span class="rec"></span> LIVE TRUST CHECK</span>
+        <span class="eyebrow">Demo</span>
+      </div>
+      <div class="check-input-row">
+        <input class="check-input" id="heroInput" type="text" placeholder="Paste UPI ID, seller name, website, QR or Instagram profile…" autocomplete="off">
+      </div>
+      <div class="panel-actions">
+        <button class="btn btn-green" id="heroCheckBtn">Check Now</button>
+        <button class="btn btn-ghost" id="heroScanBtn">Scan QR</button>
+      </div>
+      <p class="err-msg" id="heroErr">Enter something to check — a UPI ID, seller name, website or profile link.</p>
+
+      <div class="scan-box" id="scanBox">
+        <div class="scan-step" data-step="1"><span class="sdot"></span> Analyzing identity…</div>
+        <div class="scan-step" data-step="2"><span class="sdot"></span> Checking ScamFree network…</div>
+        <div class="scan-step" data-step="3"><span class="sdot"></span> Looking for suspicious signals…</div>
+        <div class="scan-step" data-step="4"><span class="sdot"></span> Calculating risk…</div>
+      </div>
+
+      <div class="result-box" id="resultBox">
+        <div class="result-top">
+          <span class="result-badge" id="resultBadge"></span>
+          <span class="result-score">Trust score <b id="resultScore">—</b>/100</span>
+        </div>
+        <p class="result-note" id="resultNote"></p>
+        <ul class="signal-list" id="resultSignals"></ul>
+        <p class="result-disclaimer">Demo result using sample data. No real financial or identity lookup has occurred.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <div class="section-head reveal-up">
+      <span class="eyebrow">The problem</span>
+      <h2 style="margin-top:12px">The internet has a trust problem.</h2>
+      <p>Every day, millions of payments are sent to people no one has actually verified. By the time something feels wrong, the money is already gone.</p>
+    </div>
+    <div class="scenario-grid" id="scenarioGrid">
+      <div class="scenario"><div class="src">Instagram seller</div><div class="msg">"DM for price, payment first"</div><div class="flag">⚠ No seller verification</div></div>
+      <div class="scenario"><div class="src">Unknown UPI ID</div><div class="msg">"Pay ₹2,499 to this ID"</div><div class="flag">⚠ Identity not confirmed</div></div>
+      <div class="scenario"><div class="src">WhatsApp seller</div><div class="msg">"Limited stock. Pay now."</div><div class="flag">⚠ Urgency pressure tactic</div></div>
+      <div class="scenario"><div class="src">Unknown website</div><div class="msg">"50% OFF — today only"</div><div class="flag">⚠ No verified business signal</div></div>
+    </div>
+    <div class="problem-question reveal-up">
+      <p>But how do you know who's actually behind the payment?</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRUST CHECK EXPERIENCE ================= -->
+<section id="checker" class="section-alt">
+  <div class="wrap">
+    <div class="section-head reveal-up">
+      <span class="eyebrow">The product</span>
+      <h2 style="margin-top:12px">Run a trust check.</h2>
+      <p>Switch between the ways people usually pay — check whichever one applies before you send money.</p>
+    </div>
+
+    <div class="tabbar" id="tabbar">
+      <button class="active" data-tab="upi">UPI</button>
+      <button data-tab="qr">QR</button>
+      <button data-tab="instagram">Instagram</button>
+      <button data-tab="website">Website</button>
+      <button data-tab="seller">Seller</button>
+    </div>
+
+    <div class="checker-grid">
+      <div>
+        <div class="check-input-row">
+          <input class="check-input" id="tabInput" type="text" placeholder="name@upi">
+        </div>
+        <div class="panel-actions">
+          <button class="btn btn-green" id="tabCheckBtn">Check Now</button>
+        </div>
+        <p class="err-msg" id="tabErr">Enter a value to run the check.</p>
+        <p class="checker-hint" id="tabHint">TRY: trendy_outfits_21 (low risk) · style_store_09 (caution) · fashion_world____ (high risk)</p>
+
+        <div class="scan-box" id="tabScanBox">
+          <div class="scan-step" data-step="1"><span class="sdot"></span> Analyzing identity…</div>
+          <div class="scan-step" data-step="2"><span class="sdot"></span> Checking ScamFree network…</div>
+          <div class="scan-step" data-step="3"><span class="sdot"></span> Looking for suspicious signals…</div>
+          <div class="scan-step" data-step="4"><span class="sdot"></span> Calculating risk…</div>
+        </div>
+
+        <div class="result-box" id="tabResultBox">
+          <div class="result-top">
+            <span class="result-badge" id="tabResultBadge"></span>
+            <span class="result-score">Trust score <b id="tabResultScore">—</b>/100</span>
+          </div>
+          <p class="result-note" id="tabResultNote"></p>
+          <ul class="signal-list" id="tabResultSignals"></ul>
+        </div>
+
+        <div class="demo-note">⚠ This is a prototype. Results use demo data only — no live fraud database is queried.</div>
+      </div>
+
+      <div class="score-card">
+        <div class="ring-wrap">
+          <svg width="190" height="190" viewBox="0 0 190 190">
+            <circle cx="95" cy="95" r="82" fill="none" stroke="#EEEBE2" stroke-width="14"/>
+            <circle id="ringProgress" cx="95" cy="95" r="82" fill="none" stroke="#0E8F52" stroke-width="14" stroke-linecap="round" stroke-dasharray="515" stroke-dashoffset="515"/>
+          </svg>
+          <div class="ring-num"><strong id="ringScore">—</strong><span id="ringLabel">RUN A CHECK</span></div>
+        </div>
+        <div class="bars" id="scoreBars">
+          <div class="bar-row"><div class="bl"><span>Seller history</span><span id="b1v">—</span></div><div class="bar-track"><div class="bar-fill" id="b1"></div></div></div>
+          <div class="bar-row"><div class="bl"><span>Community trust</span><span id="b2v">—</span></div><div class="bar-track"><div class="bar-fill" id="b2"></div></div></div>
+          <div class="bar-row"><div class="bl"><span>Account age</span><span id="b3v">—</span></div><div class="bar-track"><div class="bar-fill" id="b3"></div></div></div>
+          <div class="bar-row"><div class="bl"><span>Payment signals</span><span id="b4v">—</span></div><div class="bar-track"><div class="bar-fill" id="b4"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHY THIS CHECK EXISTS ================= -->
+<section id="signals">
+  <div class="wrap">
+    <div class="section-head reveal-up">
+      <span class="eyebrow">Why this check exists</span>
+      <h2 style="margin-top:12px">Eight signals, one score.</h2>
+      <p>Every trust score is built from several independent signals. Tap a card to see what each one looks for.</p>
+    </div>
+    <div class="signal-grid" id="signalGrid"></div>
+  </div>
+</section>
+
+<!-- ================= SAFETY NETWORK ================= -->
+<section id="network" class="section-alt">
+  <div class="wrap">
+    <div class="section-head reveal-up">
+      <span class="eyebrow">Safety network</span>
+      <h2 style="margin-top:12px">A living map of trust.</h2>
+      <p>Every check, report and confirmed order adds a signal to the network. The more the network sees, the sharper the picture gets.</p>
+    </div>
+    <div class="network-wrap reveal-up">
+      <svg id="networkSvg" viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="net-legend">
+      <span><i style="background:#0B1220"></i> Sellers</span>
+      <span><i style="background:#0E8F52"></i> Payment IDs</span>
+      <span><i style="background:#B4690E"></i> Community reports</span>
+      <span><i style="background:#B23A2E"></i> Risk signals</span>
+      <span><i style="background:#7C8AB0"></i> Users</span>
+    </div>
+    <p class="checker-hint" style="margin-top:14px">Conceptual / demo visualization — ScamFree does not access private banking data.</p>
+  </div>
+</section>
+
+<!-- ================= COMMUNITY REPORTING ================= -->
+<section id="reporting">
+  <div class="wrap">
+    <div class="report-cta reveal-up">
+      <div>
+        <span class="eyebrow">Community reporting</span>
+        <h3 style="margin-top:10px">Someone got scammed? Make sure the next person doesn't.</h3>
+        <p style="color:var(--ink-soft);margin-top:10px;max-width:480px">Reports feed directly into seller trust scores — the details you share help flag risk for the next buyer.</p>
+      </div>
+      <button class="btn btn-green" id="openReportBtn">Report a Seller</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SELLER PROFILES ================= -->
+<section id="profiles" class="section-alt">
+  <div class="wrap">
+    <div class="section-head reveal-up">
+      <span class="eyebrow">Seller profiles</span>
+      <h2 style="margin-top:12px">What a trust check actually shows.</h2>
+      <p>Two real examples of what buyers see — one low risk, one high risk.</p>
+    </div>
+    <div class="profiles-grid">
+      <div class="profile-card reveal-up">
+        <div class="profile-top">
+          <div class="profile-id">
+            <div class="avatar">TO</div>
+            <div><strong>Trendy Outfits</strong><span>@trendy_outfits_21</span></div>
+          </div>
+          <span class="result-badge low">🟢 LOW RISK</span>
+        </div>
+        <div class="profile-stats">
+          <div class="pstat"><span>Trust score</span><strong>92/100</strong></div>
+          <div class="pstat"><span>Account age</span><strong>1y 8m</strong></div>
+          <div class="pstat"><span>Completed orders</span><strong>1,250+</strong></div>
+          <div class="pstat"><span>Customer sentiment</span><strong>4.6/5</strong></div>
+        </div>
+        <ul class="profile-signals">
+          <li>✓ Verified seller identity</li>
+          <li>✓ Consistent payment ID history</li>
+          <li>✓ 3 community reports (resolved)</li>
+        </ul>
+        <button class="btn btn-green btn-block">Proceed to Pay</button>
+      </div>
+
+      <div class="profile-card risky reveal-up">
+        <div class="profile-top">
+          <div class="profile-id">
+            <div class="avatar">FW</div>
+            <div><strong>Fashion World</strong><span>@fashion_world____</span></div>
+          </div>
+          <span class="result-badge high">🔴 HIGH RISK</span>
+        </div>
+        <div class="risk-warn">Multiple suspicious signals detected. Proceed with extreme caution.</div>
+        <div class="profile-stats">
+          <div class="pstat"><span>Trust score</span><strong>18/100</strong></div>
+          <div class="pstat"><span>Account age</span><strong>12 days</strong></div>
+          <div class="pstat"><span>Community reports</span><strong>27</strong></div>
+          <div class="pstat"><span>Customer sentiment</span><strong>1.2/5</strong></div>
+        </div>
+        <ul class="profile-signals">
+          <li>⚠ New account, high transaction volume</li>
+          <li>⚠ Multiple non-delivery complaints</li>
+          <li>⚠ Payment identity mismatch</li>
+        </ul>
+        <button class="btn btn-block" style="background:var(--red);color:#fff">Do Not Pay</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section id="how">
+  <div class="wrap">
+    <div class="section-head reveal-up">
+      <span class="eyebrow">How it works</span>
+      <h2 style="margin-top:12px">Six steps between you and a safer payment.</h2>
+    </div>
+    <div class="steps-list" id="stepsList">
+      <div class="step-row reveal-up"><div class="step-num">01</div><div><h4>Scan or enter</h4><p>Paste a UPI ID, scan a QR code, or drop in a seller name, website or Instagram handle.</p></div></div>
+      <div class="step-row reveal-up"><div class="step-num">02</div><div><h4>ScamFree checks</h4><p>We cross-reference the identity against community reports, activity signals and payment history.</p></div></div>
+      <div class="step-row reveal-up"><div class="step-num">03</div><div><h4>Risk result</h4><p>Get an instant read: low risk, caution, or high risk — with the signals behind the score.</p></div></div>
+      <div class="step-row reveal-up"><div class="step-num">04</div><div><h4>You decide</h4><p>ScamFree never blocks a payment. You always make the final call, with more information than before.</p></div></div>
+      <div class="step-row reveal-up"><div class="step-num">05</div><div><h4>Order tracking</h4><p>If the seller provides details, track delivery and follow-up in one place.</p></div></div>
+      <div class="step-row reveal-up"><div class="step-num">06</div><div><h4>Report &amp; help</h4><p>If something goes wrong, report it — your report helps flag risk for the next buyer.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BUSINESS ================= -->
+<section id="business" class="section-alt">
+  <div class="wrap biz-grid">
+    <div class="reveal-up">
+      <span class="eyebrow">For businesses</span>
+      <h2 style="margin-top:12px">Good businesses deserve to be trusted.</h2>
+      <p style="color:var(--ink-soft);margin-top:14px">A verified badge tells buyers, at a glance, that your identity, payment details and order history check out.</p>
+      <ul class="biz-list">
+        <li>✓ <div><strong>Verified seller identity</strong> — confirmed once, shown on every check.</div></li>
+        <li>✓ <div><strong>Trust badge</strong> — a visible signal across your storefronts.</div></li>
+        <li>✓ <div><strong>Business profile</strong> — order history and sentiment in one place.</div></li>
+        <li>✓ <div><strong>Reputation signals</strong> — resolved reports strengthen your score over time.</div></li>
+      </ul>
+      <a href="#business" class="btn btn-primary" style="margin-top:26px">Build Trust With ScamFree</a>
+    </div>
+    <div class="biz-badge reveal-up">
+      <div class="biz-badge-top">
+        <div class="avatar">✓</div>
+        <div><strong style="font-family:var(--font-display)">Verified Seller</strong><div style="font-size:13px;color:var(--ink-soft)">Badge preview</div></div>
+      </div>
+      <div class="profile-stats">
+        <div class="pstat"><span>Trust score</span><strong>96/100</strong></div>
+        <div class="pstat"><span>Verified since</span><strong>Mar 2025</strong></div>
+        <div class="pstat"><span>Orders fulfilled</span><strong>4,800+</strong></div>
+        <div class="pstat"><span>Dispute rate</span><strong>0.4%</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BUSINESS MODEL ================= -->
+<section id="resources">
+  <div class="wrap">
+    <div class="section-head reveal-up">
+      <span class="eyebrow">Business model</span>
+      <h2 style="margin-top:12px">Checking stays free. Trust has to be built though.</h2>
+      <p>Consumer trust checks are free, always. Revenue comes from sellers and businesses who want to build and prove their reputation.</p>
+    </div>
+    <div class="model-grid">
+      <div class="model-card reveal-up"><span class="tag">FOR CONSUMERS</span><h4>Free trust checking</h4><p>Unlimited checks, no account required.</p></div>
+      <div class="model-card reveal-up"><span class="tag">FOR SELLERS</span><h4>Verified subscriptions</h4><p>Monthly plans for identity and payment verification.</p></div>
+      <div class="model-card reveal-up"><span class="tag">FOR SELLERS</span><h4>Premium verification</h4><p>Deeper checks and a stronger trust badge.</p></div>
+      <div class="model-card reveal-up"><span class="tag">FOR PLATFORMS</span><h4>Trust API</h4><p>Transaction-based access to ScamFree's signal infrastructure.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= IMPACT ================= -->
+<section class="section-ink">
+  <div class="wrap">
+    <div class="section-head reveal-up">
+      <span class="eyebrow">Impact</span>
+      <h2 style="margin-top:12px">What a safety layer looks like at scale.</h2>
+    </div>
+    <div class="impact-grid">
+      <div class="reveal-up"><div class="impact-num" data-count="10">0</div><div class="impact-label">Million+ people protected*</div></div>
+      <div class="reveal-up"><div class="impact-num" data-count="250" data-suffix="K">0</div><div class="impact-label">Sellers checked*</div></div>
+      <div class="reveal-up"><div class="impact-num" data-count="98" data-suffix="%">0</div><div class="impact-label">Checks completed in seconds*</div></div>
+      <div class="reveal-up"><div class="impact-num" data-count="1" data-suffix="M+">0</div><div class="impact-label">Community signals logged*</div></div>
+    </div>
+    <p class="impact-disclaimer">*Concept / demo metrics for illustration — not live production data.</p>
+  </div>
+</section>
+
+<!-- ================= FINAL CTA ================= -->
+<section class="final-cta">
+  <div class="wrap">
+    <h2 class="reveal-up">Your money moves fast. Your trust check should too.</h2>
+    <div class="ctas reveal-up">
+      <a href="#checker" class="btn btn-green">Check Before You Pay</a>
+      <a href="#network" class="btn btn-ghost">Join the Safety Network</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#top" class="brand">Scam<b>Free</b></a>
+        <p>"Check before you pay." A safety layer for online payments.</p>
+      </div>
+      <div><h5>PRODUCT</h5><ul><li><a href="#checker">Check Seller</a></li><li><a href="#checker">Risk Score</a></li><li><a href="#reporting">Reports</a></li><li><a href="#how">Order Tracking</a></li></ul></div>
+      <div><h5>BUSINESS</h5><ul><li><a href="#business">Verify Business</a></li><li><a href="#business">Trust Badge</a></li><li><a href="#resources">API</a></li><li><a href="#resources">Pricing</a></li></ul></div>
+      <div><h5>COMPANY</h5><ul><li><a href="#">About</a></li><li><a href="#">Contact</a></li><li><a href="#">Careers</a></li></ul></div>
+      <div><h5>LEGAL</h5><ul><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li><li><a href="#">Safety</a></li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <p class="foot-disclaimer">ScamFree is a safety and risk-information service. A low-risk result does not guarantee that a transaction is safe. Always use your own judgment.</p>
+      <p class="foot-copy">© 2026 ScamFree. Concept product — not a live financial service.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= REPORT MODAL ================= -->
+<div class="modal-overlay" id="reportOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+    <div class="modal-head">
+      <h3 id="reportTitle">Report a seller</h3>
+      <button class="modal-close" id="reportClose" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2l12 12M14 2L2 14" stroke="#0B1220" stroke-width="1.6"/></svg>
+      </button>
+    </div>
+    <form id="reportForm">
+      <div class="field">
+        <label class="flabel" for="repWho">SELLER, UPI ID OR PROFILE</label>
+        <input type="text" id="repWho" placeholder="e.g. @fashion_world____" required>
+      </div>
+      <label class="flabel">WHY ARE YOU REPORTING?</label>
+      <div class="report-cats">
+        <label><input type="radio" name="cat" value="Payment scam" required> Payment scam</label>
+        <label><input type="radio" name="cat" value="Seller disappeared"> Seller disappeared</label>
+        <label><input type="radio" name="cat" value="Wrong product"> Wrong product</label>
+        <label><input type="radio" name="cat" value="Fake website"> Fake website</label>
+        <label><input type="radio" name="cat" value="Impersonation"> Impersonation</label>
+        <label><input type="radio" name="cat" value="Suspicious request"> Suspicious payment request</label>
+        <label><input type="radio" name="cat" value="Other"> Other</label>
+      </div>
+      <div class="field">
+        <label class="flabel" for="repDetails">DETAILS (OPTIONAL)</label>
+        <textarea id="repDetails" rows="3" placeholder="What happened?"></textarea>
+      </div>
+      <button type="submit" class="btn btn-green btn-block">Submit Report</button>
+    </form>
+    <div class="report-success" id="reportSuccess">
+      <div class="check-ico"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 12l6 6L20 6" stroke="#0E8F52" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h3>Report received.</h3>
+      <p style="color:var(--ink-soft);margin-top:8px;font-size:14.5px">This report is added to the seller's signal history and helps improve risk detection for the next buyer.</p>
+      <button class="btn btn-ghost" id="reportDone" style="margin-top:20px">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- helpers ---------------- */
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h=setTimeout(function(){t.classList.remove('show')},2600);
+}
+
+/* ---------------- nav scroll + mobile menu ---------------- */
+var navEl=document.getElementById('nav');
+window.addEventListener('scroll',function(){
+  navEl.classList.toggle('scrolled', window.scrollY>10);
+},{passive:true});
+
+var mnav=document.getElementById('mnav');
+var navToggle=document.getElementById('navToggle');
+var mnavClose=document.getElementById('mnavClose');
+function openMnav(){mnav.classList.add('open');navToggle.setAttribute('aria-expanded','true');document.body.style.overflow='hidden';}
+function closeMnav(){mnav.classList.remove('open');navToggle.setAttribute('aria-expanded','false');document.body.style.overflow='';}
+navToggle.addEventListener('click',openMnav);
+mnavClose.addEventListener('click',closeMnav);
+mnav.querySelectorAll('a').forEach(function(a){a.addEventListener('click',closeMnav)});
+
+document.getElementById('signInBtn').addEventListener('click',function(e){
+  e.preventDefault();
+  toast('Sign in is a demo action in this prototype.');
+});
+
+/* ---------------- reveal on scroll ---------------- */
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target);} });
+},{threshold:0.15});
+document.querySelectorAll('.reveal-up').forEach(function(el){io.observe(el)});
+
+/* ---------------- demo risk engine ---------------- */
+var DEMO_PROFILES={
+  low:{
+    badgeClass:'low', badge:'🟢 LOW RISK', score:92,
+    note:'Looks safe based on available signals.',
+    signals:['<b>✓</b> Account history','<b>✓</b> Community reports','<b>✓</b> Payment identity','<b>✓</b> Seller activity'],
+    bars:[92,88,95,90]
+  },
+  caution:{
+    badgeClass:'caution', badge:'🟡 CAUTION', score:61,
+    note:'Some signals are inconclusive. Verify before paying a large amount.',
+    signals:['<b>~</b> Limited account history','<b>~</b> Few community reports','<b>✓</b> Payment identity','<b>~</b> Low seller activity'],
+    bars:[58,52,64,60]
+  },
+  high:{
+    badgeClass:'high', badge:'🔴 HIGH RISK', score:18,
+    note:'Multiple suspicious signals detected. Proceed with extreme caution.',
+    signals:['<b>⚠</b> New account','<b>⚠</b> Multiple complaints','<b>⚠</b> Payment identity mismatch','<b>⚠</b> Suspicious seller behavior'],
+    bars:[15,10,22,20]
+  }
+};
+
+function classify(raw){
+  var v=(raw||'').toLowerCase();
+  if(v.indexOf('fashion_world')>-1 || v.indexOf('fashionworld')>-1) return 'high';
+  if(v.indexOf('style_store')>-1 || v.indexOf('stylestore')>-1) return 'caution';
+  if(v.indexOf('trendy')>-1) return 'low';
+  // deterministic hash fallback so same input always gives same demo result
+  var h=0;
+  for(var i=0;i<v.length;i++){ h=(h*31 + v.charCodeAt(i))>>>0; }
+  var bucket=h%10;
+  if(bucket<5) return 'low';
+  if(bucket<8) return 'caution';
+  return 'high';
+}
+
+function runScan(scanBoxId, onDone){
+  var box=document.getElementById(scanBoxId);
+  box.classList.add('show');
+  var steps=box.querySelectorAll('.scan-step');
+  steps.forEach(function(s){s.classList.remove('active','done');var d=s.querySelector('.sdot');d.classList.remove('spin')});
+  var i=0;
+  function next(){
+    if(i>0){ steps[i-1].classList.remove('active'); steps[i-1].classList.add('done'); steps[i-1].querySelector('.sdot').classList.remove('spin'); }
+    if(i<steps.length){
+      steps[i].classList.add('active');
+      steps[i].querySelector('.sdot').classList.add('spin');
+      i++;
+      setTimeout(next, 430);
+    } else {
+      setTimeout(onDone, 200);
+    }
+  }
+  next();
+}
+
+function animateRing(score){
+  var ring=document.getElementById('ringProgress');
+  if(!ring) return;
+  var circumference=515;
+  var offset=circumference - (circumference*score/100);
+  var color = score>=75?'#0E8F52': score>=40?'#B4690E':'#B23A2E';
+  ring.style.stroke=color;
+  requestAnimationFrame(function(){ ring.style.transition='stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)'; ring.style.strokeDashoffset=offset; });
+  document.getElementById('ringScore').textContent=score;
+  document.getElementById('ringScore').style.color=color;
+  var label = score>=75?'LOW RISK': score>=40?'CAUTION':'HIGH RISK';
+  document.getElementById('ringLabel').textContent=label;
+}
+
+function animateBars(bars){
+  var ids=['b1','b2','b3','b4'];
+  ids.forEach(function(id,idx){
+    var val=bars[idx];
+    var color = val>=75?'#0E8F52': val>=40?'#B4690E':'#B23A2E';
+    var fill=document.getElementById(id);
+    fill.style.background=color;
+    document.getElementById(id+'v').textContent=val+'%';
+    requestAnimationFrame(function(){ fill.style.width=val+'%'; });
+  });
+}
+
+/* ---------------- hero checker ---------------- */
+var heroInput=document.getElementById('heroInput');
+var heroErr=document.getElementById('heroErr');
+document.getElementById('heroCheckBtn').addEventListener('click',function(){
+  var val=heroInput.value.trim();
+  if(!val){
+    heroInput.classList.add('error'); heroErr.classList.add('show');
+    return;
+  }
+  heroInput.classList.remove('error'); heroErr.classList.remove('show');
+  document.getElementById('resultBox').classList.remove('show');
+  runScan('scanBox', function(){
+    var key=classify(val);
+    var p=DEMO_PROFILES[key];
+    showResult('resultBadge','resultScore','resultNote','resultSignals','resultBox',p);
+  });
+});
+heroInput.addEventListener('input',function(){ heroInput.classList.remove('error'); heroErr.classList.remove('show'); });
+document.getElementById('heroScanBtn').addEventListener('click',function(){
+  toast('Camera access isn\u2019t available in this demo — try pasting a value instead.');
+});
+
+function showResult(badgeId,scoreId,noteId,sigId,boxId,p){
+  var badge=document.getElementById(badgeId);
+  badge.className='result-badge '+p.badgeClass;
+  badge.textContent=p.badge;
+  document.getElementById(scoreId).textContent=p.score;
+  document.getElementById(noteId).textContent=p.note;
+  var sigWrap=document.getElementById(sigId);
+  sigWrap.className='signal-list'+(p.badgeClass==='high'?' high':'');
+  sigWrap.innerHTML=p.signals.map(function(s){return '<li>'+s+'</li>'}).join('');
+  document.getElementById(boxId).classList.add('show');
+}
+
+/* ---------------- tabbed checker ---------------- */
+var tabPlaceholders={
+  upi:'name@upi', qr:'Enter QR data or seller reference…',
+  instagram:'@fashion_store_xyz', website:'example-store.com', seller:'Seller or business name'
+};
+var tabHints={
+  upi:'TRY: trendy_outfits_21 (low) · style_store_09 (caution) · fashion_world____ (high)',
+  qr:'TRY: any UPI ID or seller reference embedded in a QR code',
+  instagram:'TRY: @trendy_outfits_21 (low) · @style_store_09 (caution) · @fashion_world____ (high)',
+  website:'TRY: trendyoutfits.com (low) · stylestore.in (caution) · fashionworld-deals.com (high)',
+  seller:'TRY: Trendy Outfits (low) · Style Store (caution) · Fashion World (high)'
+};
+var currentTab='upi';
+document.getElementById('tabbar').addEventListener('click',function(e){
+  var btn=e.target.closest('button');
+  if(!btn) return;
+  document.querySelectorAll('#tabbar button').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  currentTab=btn.dataset.tab;
+  var input=document.getElementById('tabInput');
+  input.placeholder=tabPlaceholders[currentTab];
+  input.value='';
+  document.getElementById('tabHint').textContent=tabHints[currentTab];
+  document.getElementById('tabResultBox').classList.remove('show');
+  document.getElementById('tabScanBox').classList.remove('show');
+});
+var tabInput=document.getElementById('tabInput');
+var tabErr=document.getElementById('tabErr');
+document.getElementById('tabCheckBtn').addEventListener('click',function(){
+  var val=tabInput.value.trim();
+  if(currentTab==='qr' && !val){ val='demo-qr-payload-882'; }
+  if(!val){
+    tabInput.classList.add('error'); tabErr.classList.add('show');
+    return;
+  }
+  tabInput.classList.remove('error'); tabErr.classList.remove('show');
+  document.getElementById('tabResultBox').classList.remove('show');
+  runScan('tabScanBox', function(){
+    var key=classify(val);
+    var p=DEMO_PROFILES[key];
+    showResult('tabResultBadge','tabResultScore','tabResultNote','tabResultSignals','tabResultBox',p);
+    animateRing(p.score);
+    animateBars(p.bars);
+  });
+});
+tabInput.addEventListener('input',function(){ tabInput.classList.remove('error'); tabErr.classList.remove('show'); });
+
+/* ---------------- problem section flags on scroll ---------------- */
+var scenGrid=document.getElementById('scenarioGrid');
+var scenIO=new IntersectionObserver(function(entries){
+  entries.forEach(function(en,idx){
+    if(en.isIntersecting){
+      setTimeout(function(){ en.target.classList.add('flagged'); }, [0,150,300,450][Array.prototype.indexOf.call(scenGrid.children,en.target)]||0);
+      scenIO.unobserve(en.target);
+    }
+  });
+},{threshold:0.4});
+scenGrid.querySelectorAll('.scenario').forEach(function(el){scenIO.observe(el)});
+
+/* ---------------- signal cards ---------------- */
+var SIGNALS=[
+  {t:'Identity Signals', d:'Cross-checks the name, handle or ID against known patterns of consistent, real accounts.'},
+  {t:'Payment Signals', d:'Looks at how long a payment ID has been active and how consistently it\u2019s been used.'},
+  {t:'Community Reports', d:'Factors in reports submitted by other buyers, weighted by how recent and how resolved they are.'},
+  {t:'Account History', d:'Considers how long the seller\u2019s account or storefront has existed.'},
+  {t:'Seller Behavior', d:'Flags pressure tactics like urgency messaging or payment-before-details requests.'},
+  {t:'Website Signals', d:'Checks domain age, structure and known patterns associated with unsafe storefronts.'},
+  {t:'Order History', d:'Looks at completed order volume and delivery consistency where available.'},
+  {t:'Fraud Patterns', d:'Compares signals against patterns seen in confirmed scam reports across the network.'}
+];
+var sgrid=document.getElementById('signalGrid');
+sgrid.innerHTML=SIGNALS.map(function(s,i){
+  return '<div class="signal-card reveal-up" data-i="'+i+'"><h4>'+s.t+'<span class="plus">+</span></h4><p>'+s.d+'</p></div>';
+}).join('');
+sgrid.querySelectorAll('.signal-card').forEach(function(c){ io.observe(c); c.addEventListener('click',function(){ c.classList.toggle('open'); }); });
+
+/* ---------------- impact counters ---------------- */
+var impactIO=new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      var el=en.target; var target=parseInt(el.dataset.count,10); var suffix=el.dataset.suffix||'';
+      var start=0; var dur=1200; var t0=null;
+      function step(ts){
+        if(!t0) t0=ts;
+        var p=Math.min((ts-t0)/dur,1);
+        var val=Math.floor(p*target);
+        el.textContent=val+suffix;
+        if(p<1) requestAnimationFrame(step); else el.textContent=target+suffix;
+      }
+      requestAnimationFrame(step);
+      impactIO.unobserve(el);
+    }
+  });
+},{threshold:0.5});
+document.querySelectorAll('.impact-num').forEach(function(el){impactIO.observe(el)});
+
+/* ---------------- safety network svg ---------------- */
+(function buildNetwork(){
+  var svg=document.getElementById('networkSvg');
+  var W=900,H=380;
+  var nodes=[
+    {x:120,y:190,r:9,c:'#0B1220',label:'Seller'},
+    {x:250,y:100,r:7,c:'#0E8F52',label:'Payment ID'},
+    {x:250,y:280,r:7,c:'#0E8F52',label:'Payment ID'},
+    {x:400,y:60,r:6,c:'#7C8AB0',label:'User'},
+    {x:400,y:150,r:6,c:'#7C8AB0',label:'User'},
+    {x:400,y:230,r:6,c:'#7C8AB0',label:'User'},
+    {x:400,y:320,r:6,c:'#7C8AB0',label:'User'},
+    {x:560,y:100,r:8,c:'#B4690E',label:'Report'},
+    {x:560,y:200,r:8,c:'#B4690E',label:'Report'},
+    {x:560,y:300,r:6,c:'#0E8F52',label:'Report'},
+    {x:720,y:150,r:10,c:'#B23A2E',label:'Risk signal'},
+    {x:720,y:260,r:10,c:'#0E8F52',label:'Trust signal'},
+    {x:840,y:200,r:12,c:'#0B1220',label:'Trust score'}
+  ];
+  var links=[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6],[3,7],[4,7],[4,8],[5,8],[6,9],[7,10],[8,10],[9,11],[10,12],[11,12]];
+  var ns='http://www.w3.org/2000/svg';
+  links.forEach(function(l){
+    var a=nodes[l[0]], b=nodes[l[1]];
+    var line=document.createElementNS(ns,'line');
+    line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
+    line.setAttribute('x2',a.x);line.setAttribute('y2',a.y);
+    line.setAttribute('stroke','#DEDACC');line.setAttribute('stroke-width','1.5');
+    svg.appendChild(line);
+    line.dataset.tx=b.x; line.dataset.ty=b.y;
+  });
+  nodes.forEach(function(n,i){
+    var c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r',0);
+    c.setAttribute('fill',n.c); c.classList.add('net-node');
+    c.dataset.r=n.r;
+    svg.appendChild(c);
+    var title=document.createElementNS(ns,'title'); title.textContent=n.label; c.appendChild(title);
+  });
+  var netIO=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        var lines=svg.querySelectorAll('line'); var circles=svg.querySelectorAll('circle');
+        lines.forEach(function(l,i){
+          setTimeout(function(){
+            l.style.transition='x2 .6s ease, y2 .6s ease';
+            l.setAttribute('x2', l.dataset.tx); l.setAttribute('y2', l.dataset.ty);
+          }, i*60);
+        });
+        circles.forEach(function(c,i){
+          setTimeout(function(){
+            c.style.transition='r .4s cubic-bezier(.3,1.4,.5,1)';
+            c.setAttribute('r', c.dataset.r);
+          }, 300 + i*70);
+        });
+        netIO.unobserve(en.target);
+      }
+    });
+  },{threshold:0.3});
+  netIO.observe(svg);
+})();
+
+/* ---------------- report modal ---------------- */
+var overlay=document.getElementById('reportOverlay');
+var form=document.getElementById('reportForm');
+var success=document.getElementById('reportSuccess');
+function openReport(){
+  overlay.classList.add('open'); document.body.style.overflow='hidden';
+  form.style.display=''; success.classList.remove('show');
+  form.reset();
+}
+function closeReport(){ overlay.classList.remove('open'); document.body.style.overflow=''; }
+document.getElementById('openReportBtn').addEventListener('click',openReport);
+document.getElementById('reportClose').addEventListener('click',closeReport);
+overlay.addEventListener('click',function(e){ if(e.target===overlay) closeReport(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape' && overlay.classList.contains('open')) closeReport(); });
+form.addEventListener('submit',function(e){
+  e.preventDefault();
+  var who=document.getElementById('repWho').value.trim();
+  var cat=form.querySelector('input[name=cat]:checked');
+  if(!who || !cat){ toast('Add who you\u2019re reporting and a reason.'); return; }
+  form.style.display='none';
+  success.classList.add('show');
+});
+document.getElementById('reportDone').addEventListener('click',closeReport);
+
+})();
+</script>
+</body>
+</html>
